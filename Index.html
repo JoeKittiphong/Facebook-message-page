@@ -21,6 +21,7 @@ body {
   align-items: flex-end;
   gap: 4px;
   max-width: 90%;
+  position: relative;
 }
 .mychat {
   align-self: flex-start;
@@ -164,6 +165,35 @@ function initAvatar(labelEl, isMyChat) {
   });
 }
 
+// ฟังก์ชันเพิ่มความสามารถลบด้วย long press
+function enableLongPressDelete(row) {
+  let pressTimer = null;
+
+  const start = () => {
+    pressTimer = setTimeout(() => {
+      if (confirm("คุณต้องการลบแชทนี้หรือไม่?")) {
+        row.remove();
+        saveChatData();
+        updateAvatars();
+      }
+    }, 600); // กดค้าง 600ms
+  };
+
+  const cancel = () => {
+    if (pressTimer !== null) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  };
+
+  row.addEventListener('touchstart', start);
+  row.addEventListener('touchend', cancel);
+  row.addEventListener('touchmove', cancel);
+  row.addEventListener('mousedown', start);
+  row.addEventListener('mouseup', cancel);
+  row.addEventListener('mouseleave', cancel);
+}
+
 function createChat(data = null, isMyChat = true) {
   const row = document.createElement('div');
   row.className = `bubble-row ${isMyChat ? 'mychat' : 'partner'}`;
@@ -218,6 +248,9 @@ function createChat(data = null, isMyChat = true) {
   time.addEventListener('input', saveChatData);
   message.addEventListener('input', saveChatData);
 
+  // เปิดใช้งานลบด้วย long press
+  enableLongPressDelete(row);
+
   return row;
 }
 
@@ -233,7 +266,7 @@ function updateAvatars() {
   rows.forEach((r, i) => {
     r.querySelector('.avatar').style.visibility = 'hidden';
     r.style.marginTop = '0';
-    if (i === 0) r.style.marginTop = '40vh'; // แถวแรกลงมาห่าง 20%
+    if (i === 0) r.style.marginTop = '20vh'; // แถวแรกลงมาห่าง 20%
   });
 
   let lastType = '';
