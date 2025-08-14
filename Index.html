@@ -125,8 +125,21 @@ body {
 </div>
 
 <script>
-let myAvatarSrc = "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
-let partnerAvatarSrc = "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
+let myAvatarSrc = localStorage.getItem('myAvatar') || "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
+let partnerAvatarSrc = localStorage.getItem('partnerAvatar') || "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
+
+function saveChatData() {
+  const rows = Array.from(document.querySelectorAll('.bubble-row'));
+  const data = rows.map(r => {
+    const type = r.classList.contains('mychat') ? 'mychat' : 'partner';
+    const avatar = r.querySelector('.avatar img').src;
+    const name = r.querySelector('.name').textContent;
+    const time = r.querySelector('.time').textContent;
+    const message = r.querySelector('.message').textContent;
+    return { type, avatar, name, time, message };
+  });
+  localStorage.setItem('chatData', JSON.stringify(data));
+}
 
 function initAvatar(labelEl, isMyChat) {
   const img = labelEl.querySelector('img');
@@ -138,21 +151,27 @@ function initAvatar(labelEl, isMyChat) {
     const reader = new FileReader();
     reader.onload = () => {
       img.src = reader.result;
-      if (isMyChat) myAvatarSrc = reader.result;
-      else partnerAvatarSrc = reader.result;
+      if (isMyChat) {
+        myAvatarSrc = reader.result;
+        localStorage.setItem('myAvatar', reader.result);
+      } else {
+        partnerAvatarSrc = reader.result;
+        localStorage.setItem('partnerAvatar', reader.result);
+      }
+      saveChatData();
     };
     reader.readAsDataURL(file);
   });
 }
 
-function createChat(isMyChat) {
+function createChat(data = null, isMyChat = true) {
   const row = document.createElement('div');
   row.className = `bubble-row ${isMyChat ? 'mychat' : 'partner'}`;
   
   const avatar = document.createElement('label');
   avatar.className = 'avatar';
   const img = document.createElement('img');
-  img.src = isMyChat ? myAvatarSrc : partnerAvatarSrc;
+  img.src = data?.avatar || (isMyChat ? myAvatarSrc : partnerAvatarSrc);
   const fileInput = document.createElement('input');
   fileInput.type = 'file';
   fileInput.accept = 'image/*';
@@ -167,18 +186,18 @@ function createChat(isMyChat) {
   const name = document.createElement('span');
   name.className = 'name';
   name.contentEditable = "true";
-  name.textContent = isMyChat ? "Good" : "Friend";
+  name.textContent = data?.name || (isMyChat ? "Good" : "Friend");
   const time = document.createElement('span');
   time.className = 'time';
   time.contentEditable = "true";
-  time.textContent = "ตอนนี้";
+  time.textContent = data?.time || "ตอนนี้";
   header.appendChild(name);
   header.appendChild(time);
   
   const message = document.createElement('div');
   message.className = 'message';
   message.contentEditable = "true";
-  message.textContent = isMyChat ? "ข้อความของเรา" : "ข้อความของเพื่อน";
+  message.textContent = data?.message || (isMyChat ? "ข้อความของเรา" : "ข้อความของเพื่อน");
   
   bubble.appendChild(header);
   bubble.appendChild(message);
@@ -193,13 +212,20 @@ function createChat(isMyChat) {
   }
   
   initAvatar(avatar, isMyChat);
+
+  // บันทึกข้อมูลเมื่อแก้ไขชื่อ เวลา หรือข้อความ
+  name.addEventListener('input', saveChatData);
+  time.addEventListener('input', saveChatData);
+  message.addEventListener('input', saveChatData);
+
   return row;
 }
 
-function addChat(isMyChat) {
+function addChat(isMyChat, data = null) {
   const container = document.getElementById('chatContainer');
-  container.appendChild(createChat(isMyChat));
+  container.appendChild(createChat(data, isMyChat));
   updateAvatars();
+  saveChatData();
 }
 
 function updateAvatars() {
@@ -216,12 +242,17 @@ function updateAvatars() {
   }
 }
 
+// โหลด chat จาก localStorage
+const savedData = JSON.parse(localStorage.getItem('chatData') || '[]');
+if (savedData.length) {
+  savedData.forEach(d => addChat(d.type === 'mychat', d));
+} else {
+  addChat(true);  // แชทของเราเริ่มต้น
+  addChat(false); // แชทคู่สนทนาเริ่มต้น
+}
+
 document.getElementById('addMyChat').addEventListener('click', () => addChat(true));
 document.getElementById('addPartnerChat').addEventListener('click', () => addChat(false));
-
-// สร้างแชทเริ่มต้น
-addChat(true);  // แชทของเรา
-addChat(false); // แชทคู่สนทนา
 </script>
 
 </body>
