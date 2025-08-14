@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แจ้งเตือน Messenger ปรับแต่งได้</title>
+<style>
+body {
+  background: black;
+  font-family: system-ui, "Segoe UI", sans-serif;
+  padding: 20px;
+}
+.notification {
+  background: #e5e5ea;
+  border-radius: 20px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: flex-start;
+  max-width: 400px;
+  margin-bottom: 10px;
+}
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.content {
+  flex: 1;
+  padding-left: 10px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: bold;
+}
+.name[contenteditable],
+.message[contenteditable],
+.time[contenteditable] {
+  outline: none;
+}
+.time {
+  font-weight: normal;
+  color: #555;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+.message {
+  font-size: 15px;
+  margin-top: 2px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>
+</head>
+<body>
+
+<div class="notification">
+  <label class="avatar">
+    <img id="avatarImg" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg" alt="avatar">
+    <input type="file" id="avatarInput" accept="image/*" hidden>
+  </label>
+  <div class="content">
+    <div class="header">
+      <span class="name" contenteditable="true">Good</span>
+      <span class="time" contenteditable="true">ตอนนี้</span>
+    </div>
+    <div class="message" contenteditable="true">อยากมี ใครสักคนมาลูบหัว และพูดด้วยเสียงอ่อนโยนว่า</div>
+  </div>
+</div>
+
+<div class="notification">
+  <label class="avatar">
+    <img id="avatarImg2" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg" alt="avatar">
+    <input type="file" id="avatarInput2" accept="image/*" hidden>
+  </label>
+  <div class="content">
+    <div class="header">
+      <span class="name" contenteditable="true">Good</span>
+      <span class="time" contenteditable="true">ตอนนี้</span>
+    </div>
+    <div class="message" contenteditable="true">"เหนื่อยใช่ไหม ไปหาอะไรอร่อยๆ กินกัน"</div>
+  </div>
+</div>
+
+<script>
+function enableAvatarChange(avatarImgId, avatarInputId) {
+  const avatarImg = document.getElementById(avatarImgId);
+  const avatarInput = document.getElementById(avatarInputId);
+
+  avatarImg.parentElement.addEventListener('click', () => avatarInput.click());
+
+  avatarInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      avatarImg.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+enableAvatarChange('avatarImg', 'avatarInput');
+enableAvatarChange('avatarImg2', 'avatarInput2');
+</script>
+
+</body>
+</html>
