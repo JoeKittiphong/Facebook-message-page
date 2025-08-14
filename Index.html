@@ -3,43 +3,63 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>แจ้งเตือน Messenger ปรับแต่งได้</title>
+<title>Messenger Clone</title>
 <style>
 body {
   background: black;
   font-family: system-ui, "Segoe UI", sans-serif;
   padding: 20px;
+  padding-bottom: 80px; /* เผื่อพื้นที่ปุ่ม */
 }
-.notification {
-  background: #e5e5ea;
-  border-radius: 20px;
-  padding: 10px 14px;
+#chatContainer {
   display: flex;
-  align-items: flex-start;
-  max-width: 400px;
-  margin-bottom: 10px;
+  flex-direction: column;
+  gap: 4px;
+}
+.bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  max-width: 90%;
+}
+.mychat {
+  align-self: flex-start;
+  flex-direction: row;
+}
+.partner {
+  align-self: flex-end;
+  flex-direction: row-reverse;
 }
 .avatar {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
   cursor: pointer;
-  position: relative;
 }
 .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 .avatar input {
   display: none;
 }
-.content {
-  flex: 1;
-  padding-left: 10px;
+.bubble {
+  border-radius: 18px;
+  padding: 8px 12px;
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.mychat .bubble {
+  background: #e5e5ea;
+  color: black;
+}
+.partner .bubble {
+  background: #0084ff;
+  color: white;
 }
 .header {
   display: flex;
@@ -58,14 +78,28 @@ body {
   margin-left: 8px;
   flex-shrink: 0;
 }
+.partner .time {
+  color: rgba(255,255,255,0.8);
+}
 .message {
   font-size: 15px;
   margin-top: 2px;
   white-space: pre-wrap;
   word-break: break-word;
 }
-#addBtn {
-  margin-top: 20px;
+.partner .message {
+  color: white;
+}
+#buttons {
+  position: fixed;
+  bottom: 10px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+#buttons button {
   padding: 8px 14px;
   font-size: 14px;
   border: none;
@@ -74,7 +108,7 @@ body {
   color: white;
   cursor: pointer;
 }
-#addBtn:hover {
+#buttons button:hover {
   background: #3a6edc;
 }
 </style>
@@ -82,56 +116,126 @@ body {
 <body>
 
 <div id="chatContainer">
-
-  <!-- Template Chat -->
-  <div class="notification">
+  <!-- ตัวอย่างเริ่มต้น -->
+  <div class="bubble-row mychat">
     <label class="avatar">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg" alt="avatar">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg">
       <input type="file" accept="image/*">
     </label>
-    <div class="content">
+    <div class="bubble">
       <div class="header">
         <span class="name" contenteditable="true">Good</span>
         <span class="time" contenteditable="true">ตอนนี้</span>
       </div>
-      <div class="message" contenteditable="true">อยากมี ใครสักคนมาลูบหัว และพูดด้วยเสียงอ่อนโยนว่า</div>
+      <div class="message" contenteditable="true">ข้อความของเรา</div>
     </div>
   </div>
-
 </div>
 
-<button id="addBtn">+ เพิ่มแชทใหม่</button>
+<div id="buttons">
+  <button id="addMyChat">+ เพิ่มแชทของเรา</button>
+  <button id="addPartnerChat">+ เพิ่มแชทคู่สนทนา</button>
+</div>
 
 <script>
-function initChat(notificationEl) {
-  const avatarLabel = notificationEl.querySelector('.avatar');
-  const avatarImg = avatarLabel.querySelector('img');
-  const avatarInput = avatarLabel.querySelector('input');
+let myAvatarSrc = "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
+let partnerAvatarSrc = "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
 
-  avatarLabel.addEventListener('click', () => {
-    avatarInput.click();
-  });
-
-  avatarInput.addEventListener('change', (e) => {
+function initAvatar(labelEl, isMyChat) {
+  const img = labelEl.querySelector('img');
+  const input = labelEl.querySelector('input');
+  labelEl.addEventListener('click', () => input.click());
+  input.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => {
-      avatarImg.src = reader.result;
+      img.src = reader.result;
+      if (isMyChat) myAvatarSrc = reader.result;
+      else partnerAvatarSrc = reader.result;
     };
     reader.readAsDataURL(file);
   });
 }
 
-document.querySelectorAll('.notification').forEach(initChat);
+function createChat(isMyChat) {
+  const row = document.createElement('div');
+  row.className = `bubble-row ${isMyChat ? 'mychat' : 'partner'}`;
+  
+  const avatar = document.createElement('label');
+  avatar.className = 'avatar';
+  const img = document.createElement('img');
+  img.src = isMyChat ? myAvatarSrc : partnerAvatarSrc;
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  avatar.appendChild(img);
+  avatar.appendChild(fileInput);
+  
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  
+  const header = document.createElement('div');
+  header.className = 'header';
+  const name = document.createElement('span');
+  name.className = 'name';
+  name.contentEditable = "true";
+  name.textContent = isMyChat ? "Good" : "Friend";
+  const time = document.createElement('span');
+  time.className = 'time';
+  time.contentEditable = "true";
+  time.textContent = "ตอนนี้";
+  header.appendChild(name);
+  header.appendChild(time);
+  
+  const message = document.createElement('div');
+  message.className = 'message';
+  message.contentEditable = "true";
+  message.textContent = isMyChat ? "ข้อความของเรา" : "ข้อความของเพื่อน";
+  
+  bubble.appendChild(header);
+  bubble.appendChild(message);
+  
+  if (isMyChat) {
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+  } else {
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    row.style.flexDirection = "row-reverse";
+  }
+  
+  initAvatar(avatar, isMyChat);
+  return row;
+}
 
-document.getElementById('addBtn').addEventListener('click', () => {
+function addChat(isMyChat) {
   const container = document.getElementById('chatContainer');
-  const template = container.querySelector('.notification');
-  const clone = template.cloneNode(true);
-  initChat(clone);
-  container.appendChild(clone);
+  container.appendChild(createChat(isMyChat));
+  updateAvatars();
+}
+
+function updateAvatars() {
+  const rows = Array.from(document.querySelectorAll('.bubble-row'));
+  rows.forEach(r => r.querySelector('.avatar').style.visibility = 'hidden');
+  
+  let lastType = '';
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const type = rows[i].classList.contains('mychat') ? 'mychat' : 'partner';
+    if (type !== lastType) {
+      rows[i].querySelector('.avatar').style.visibility = 'visible';
+      lastType = type;
+    }
+  }
+}
+
+document.getElementById('addMyChat').addEventListener('click', () => addChat(true));
+document.getElementById('addPartnerChat').addEventListener('click', () => addChat(false));
+
+document.querySelectorAll('.bubble-row').forEach(row => {
+  initAvatar(row.querySelector('.avatar'), row.classList.contains('mychat'));
 });
+updateAvatars();
 </script>
 
 </body>
