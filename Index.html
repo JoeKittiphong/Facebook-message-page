@@ -9,7 +9,7 @@ body {
   background: black;
   font-family: system-ui, "Segoe UI", sans-serif;
   padding: 20px;
-  padding-bottom: 80px; /* เผื่อพื้นที่ปุ่ม */
+  padding-bottom: 80px;
 }
 #chatContainer {
   display: flex;
@@ -116,9 +116,7 @@ body {
 </head>
 <body>
 
-<div id="chatContainer">
-  <!-- แชทจะถูกสร้างด้วย JavaScript -->
-</div>
+<div id="chatContainer"></div>
 
 <div id="buttons">
   <button id="addMyChat">+ เพิ่มแชทของเรา</button>
@@ -127,22 +125,21 @@ body {
 
 <script>
 let myAvatarSrc = localStorage.getItem('myAvatar') || "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
-let partnerAvatarSrc = localStorage.getItem('partnerAvatar') || "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
 
 function saveChatData() {
   const rows = Array.from(document.querySelectorAll('.bubble-row'));
-  const data = rows.map(r => {
+  const data = rows.map((r, i) => {
     const type = r.classList.contains('mychat') ? 'mychat' : 'partner';
-    const avatar = r.querySelector('.avatar img').src;
-    const name = r.querySelector('.name').textContent;
-    const time = r.querySelector('.time').textContent;
+    const avatar = r.querySelector('.avatar img')?.src || '';
+    const name = r.querySelector('.name')?.textContent || '';
+    const time = r.querySelector('.time')?.textContent || '';
     const message = r.querySelector('.message').textContent;
     return { type, avatar, name, time, message };
   });
   localStorage.setItem('chatData', JSON.stringify(data));
 }
 
-function initAvatar(labelEl, isMyChat) {
+function initAvatar(labelEl) {
   const img = labelEl.querySelector('img');
   const input = labelEl.querySelector('input');
   labelEl.addEventListener('click', () => input.click());
@@ -152,23 +149,16 @@ function initAvatar(labelEl, isMyChat) {
     const reader = new FileReader();
     reader.onload = () => {
       img.src = reader.result;
-      if (isMyChat) {
-        myAvatarSrc = reader.result;
-        localStorage.setItem('myAvatar', reader.result);
-      } else {
-        partnerAvatarSrc = reader.result;
-        localStorage.setItem('partnerAvatar', reader.result);
-      }
+      myAvatarSrc = reader.result;
+      localStorage.setItem('myAvatar', reader.result);
       saveChatData();
     };
     reader.readAsDataURL(file);
   });
 }
 
-// ฟังก์ชันเพิ่มความสามารถลบด้วย long press
 function enableLongPressDelete(row) {
   let pressTimer = null;
-
   const start = () => {
     pressTimer = setTimeout(() => {
       if (confirm("คุณต้องการลบแชทนี้หรือไม่?")) {
@@ -176,16 +166,9 @@ function enableLongPressDelete(row) {
         saveChatData();
         updateAvatars();
       }
-    }, 600); // กดค้าง 600ms
+    }, 600);
   };
-
-  const cancel = () => {
-    if (pressTimer !== null) {
-      clearTimeout(pressTimer);
-      pressTimer = null;
-    }
-  };
-
+  const cancel = () => { if (pressTimer !== null) clearTimeout(pressTimer); };
   row.addEventListener('touchstart', start);
   row.addEventListener('touchend', cancel);
   row.addEventListener('touchmove', cancel);
@@ -194,102 +177,81 @@ function enableLongPressDelete(row) {
   row.addEventListener('mouseleave', cancel);
 }
 
-function createChat(data = null, isMyChat = true) {
+function createChat(data=null, isMyChat=true, isFirst=false){
   const row = document.createElement('div');
-  row.className = `bubble-row ${isMyChat ? 'mychat' : 'partner'}`;
-  
-  const avatar = document.createElement('label');
-  avatar.className = 'avatar';
-  const img = document.createElement('img');
-  img.src = data?.avatar || (isMyChat ? myAvatarSrc : partnerAvatarSrc);
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-  avatar.appendChild(img);
-  avatar.appendChild(fileInput);
-  
+  row.className = `bubble-row ${isMyChat?'mychat':'partner'}`;
+
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  
-  const header = document.createElement('div');
-  header.className = 'header';
-  const name = document.createElement('span');
-  name.className = 'name';
-  name.contentEditable = "true";
-  name.textContent = data?.name || (isMyChat ? "Good" : "Friend");
-  const time = document.createElement('span');
-  time.className = 'time';
-  time.contentEditable = "true";
-  time.textContent = data?.time || "ตอนนี้";
-  header.appendChild(name);
-  header.appendChild(time);
-  
+
+  if(isMyChat && isFirst){
+    const avatar = document.createElement('label');
+    avatar.className = 'avatar';
+    const img = document.createElement('img');
+    img.src = data?.avatar || myAvatarSrc;
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    avatar.appendChild(img);
+    avatar.appendChild(fileInput);
+    row.appendChild(avatar);
+    initAvatar(avatar);
+
+    const header = document.createElement('div');
+    header.className = 'header';
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.contentEditable = true;
+    name.textContent = data?.name || "Good";
+    const time = document.createElement('span');
+    time.className = 'time';
+    time.contentEditable = true;
+    time.textContent = data?.time || "ตอนนี้";
+    header.appendChild(name);
+    header.appendChild(time);
+    bubble.appendChild(header);
+
+    name.addEventListener('input', saveChatData);
+    time.addEventListener('input', saveChatData);
+  }else if(isMyChat && !isFirst){
+    // เว้นระยะซ้ายเท่ากับ avatar
+    bubble.style.marginLeft = '32px';
+  }
+
   const message = document.createElement('div');
   message.className = 'message';
-  message.contentEditable = "true";
+  message.contentEditable = true;
   message.textContent = data?.message || (isMyChat ? "ข้อความของเรา" : "ข้อความของเพื่อน");
-  
-  bubble.appendChild(header);
-  bubble.appendChild(message);
-  
-  if (isMyChat) {
-    row.appendChild(avatar);
-    row.appendChild(bubble);
-  } else {
-    row.appendChild(avatar);
-    row.appendChild(bubble);
-    row.style.flexDirection = "row-reverse";
-  }
-  
-  initAvatar(avatar, isMyChat);
-
-  // บันทึกเมื่อแก้ไขชื่อ เวลา หรือข้อความ
-  name.addEventListener('input', saveChatData);
-  time.addEventListener('input', saveChatData);
   message.addEventListener('input', saveChatData);
+  bubble.appendChild(message);
 
-  // เปิดใช้งานลบด้วย long press
+  row.appendChild(bubble);
   enableLongPressDelete(row);
-
   return row;
 }
 
-function addChat(isMyChat, data = null) {
+function addChat(isMyChat, data=null, isFirst=false){
   const container = document.getElementById('chatContainer');
-  container.appendChild(createChat(data, isMyChat));
+  container.appendChild(createChat(data, isMyChat, isFirst));
   updateAvatars();
   saveChatData();
 }
 
-function updateAvatars() {
+function updateAvatars(){
   const rows = Array.from(document.querySelectorAll('.bubble-row'));
-  rows.forEach((r, i) => {
-    r.querySelector('.avatar').style.visibility = 'hidden';
-    r.style.marginTop = '0';
-    if (i === 0) r.style.marginTop = '20vh'; // แถวแรกลงมาห่าง 20%
-  });
-
-  let lastType = '';
-  for (let i = rows.length - 1; i >= 0; i--) {
-    const type = rows[i].classList.contains('mychat') ? 'mychat' : 'partner';
-    if (type !== lastType) {
-      rows[i].querySelector('.avatar').style.visibility = 'visible';
-      lastType = type;
-    }
-  }
+  rows.forEach((r,i)=>{ r.style.marginTop = (i===0)?'20vh':'0'; });
 }
 
-// โหลด chat จาก localStorage
-const savedData = JSON.parse(localStorage.getItem('chatData') || '[]');
-if (savedData.length) {
-  savedData.forEach(d => addChat(d.type === 'mychat', d));
-} else {
-  addChat(true);  // แชทของเราเริ่มต้น
-  addChat(false); // แชทคู่สนทนาเริ่มต้น
+const savedData = JSON.parse(localStorage.getItem('chatData')||'[]');
+if(savedData.length){
+  savedData.forEach((d,i)=>addChat(d.type==='mychat',d,i===0));
+}else{
+  addChat(true,null,true);
+  addChat(false);
 }
 
-document.getElementById('addMyChat').addEventListener('click', () => addChat(true));
-document.getElementById('addPartnerChat').addEventListener('click', () => addChat(false));
+document.getElementById('addMyChat').addEventListener('click',()=>addChat(true));
+document.getElementById('addPartnerChat').addEventListener('click',()=>addChat(false));
 </script>
 
 </body>
