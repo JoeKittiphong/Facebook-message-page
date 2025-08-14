@@ -116,7 +116,7 @@ body {
 <body>
 
 <div id="chatContainer">
-  <!-- แชทเริ่มต้นจะถูกสร้างด้วย JavaScript -->
+  <!-- แชทจะถูกสร้างด้วย JavaScript -->
 </div>
 
 <div id="buttons">
@@ -213,7 +213,7 @@ function createChat(data = null, isMyChat = true) {
   
   initAvatar(avatar, isMyChat);
 
-  // บันทึกข้อมูลเมื่อแก้ไขชื่อ เวลา หรือข้อความ
+  // บันทึกเมื่อแก้ไขชื่อ เวลา หรือข้อความ
   name.addEventListener('input', saveChatData);
   time.addEventListener('input', saveChatData);
   message.addEventListener('input', saveChatData);
@@ -230,8 +230,12 @@ function addChat(isMyChat, data = null) {
 
 function updateAvatars() {
   const rows = Array.from(document.querySelectorAll('.bubble-row'));
-  rows.forEach(r => r.querySelector('.avatar').style.visibility = 'hidden');
-  
+  rows.forEach((r, i) => {
+    r.querySelector('.avatar').style.visibility = 'hidden';
+    r.style.marginTop = '0';
+    if (i === 0) r.style.marginTop = '20vh'; // แถวแรกลงมาห่าง 20%
+  });
+
   let lastType = '';
   for (let i = rows.length - 1; i >= 0; i--) {
     const type = rows[i].classList.contains('mychat') ? 'mychat' : 'partner';
