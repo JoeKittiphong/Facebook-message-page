@@ -26,11 +26,16 @@ body {
   overflow: hidden;
   flex-shrink: 0;
   cursor: pointer;
+  position: relative;
 }
 .avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+.avatar input {
+  display: none;
 }
 .content {
   flex: 1;
@@ -59,46 +64,55 @@ body {
   white-space: pre-wrap;
   word-break: break-word;
 }
+#addBtn {
+  margin-top: 20px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  background: #4f8cff;
+  color: white;
+  cursor: pointer;
+}
+#addBtn:hover {
+  background: #3a6edc;
+}
 </style>
 </head>
 <body>
 
-<div class="notification">
-  <label class="avatar">
-    <img id="avatarImg" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg" alt="avatar">
-    <input type="file" id="avatarInput" accept="image/*" hidden>
-  </label>
-  <div class="content">
-    <div class="header">
-      <span class="name" contenteditable="true">Good</span>
-      <span class="time" contenteditable="true">ตอนนี้</span>
+<div id="chatContainer">
+
+  <!-- Template Chat -->
+  <div class="notification">
+    <label class="avatar">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg" alt="avatar">
+      <input type="file" accept="image/*">
+    </label>
+    <div class="content">
+      <div class="header">
+        <span class="name" contenteditable="true">Good</span>
+        <span class="time" contenteditable="true">ตอนนี้</span>
+      </div>
+      <div class="message" contenteditable="true">อยากมี ใครสักคนมาลูบหัว และพูดด้วยเสียงอ่อนโยนว่า</div>
     </div>
-    <div class="message" contenteditable="true">อยากมี ใครสักคนมาลูบหัว และพูดด้วยเสียงอ่อนโยนว่า</div>
   </div>
+
 </div>
 
-<div class="notification">
-  <label class="avatar">
-    <img id="avatarImg2" src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg" alt="avatar">
-    <input type="file" id="avatarInput2" accept="image/*" hidden>
-  </label>
-  <div class="content">
-    <div class="header">
-      <span class="name" contenteditable="true">Good</span>
-      <span class="time" contenteditable="true">ตอนนี้</span>
-    </div>
-    <div class="message" contenteditable="true">"เหนื่อยใช่ไหม ไปหาอะไรอร่อยๆ กินกัน"</div>
-  </div>
-</div>
+<button id="addBtn">+ เพิ่มแชทใหม่</button>
 
 <script>
-function enableAvatarChange(avatarImgId, avatarInputId) {
-  const avatarImg = document.getElementById(avatarImgId);
-  const avatarInput = document.getElementById(avatarInputId);
+function initChat(notificationEl) {
+  const avatarLabel = notificationEl.querySelector('.avatar');
+  const avatarImg = avatarLabel.querySelector('img');
+  const avatarInput = avatarLabel.querySelector('input');
 
-  avatarImg.parentElement.addEventListener('click', () => avatarInput.click());
+  avatarLabel.addEventListener('click', () => {
+    avatarInput.click();
+  });
 
-  avatarInput.addEventListener('change', e => {
+  avatarInput.addEventListener('change', (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -109,8 +123,15 @@ function enableAvatarChange(avatarImgId, avatarInputId) {
   });
 }
 
-enableAvatarChange('avatarImg', 'avatarInput');
-enableAvatarChange('avatarImg2', 'avatarInput2');
+document.querySelectorAll('.notification').forEach(initChat);
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const container = document.getElementById('chatContainer');
+  const template = container.querySelector('.notification');
+  const clone = template.cloneNode(true);
+  initChat(clone);
+  container.appendChild(clone);
+});
 </script>
 
 </body>
