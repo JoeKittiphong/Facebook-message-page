@@ -116,20 +116,7 @@ body {
 <body>
 
 <div id="chatContainer">
-  <!-- ตัวอย่างเริ่มต้น -->
-  <div class="bubble-row mychat">
-    <label class="avatar">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg">
-      <input type="file" accept="image/*">
-    </label>
-    <div class="bubble">
-      <div class="header">
-        <span class="name" contenteditable="true">Good</span>
-        <span class="time" contenteditable="true">ตอนนี้</span>
-      </div>
-      <div class="message" contenteditable="true">ข้อความของเรา</div>
-    </div>
-  </div>
+  <!-- แชทเริ่มต้นจะถูกสร้างด้วย JavaScript -->
 </div>
 
 <div id="buttons">
@@ -232,10 +219,9 @@ function updateAvatars() {
 document.getElementById('addMyChat').addEventListener('click', () => addChat(true));
 document.getElementById('addPartnerChat').addEventListener('click', () => addChat(false));
 
-document.querySelectorAll('.bubble-row').forEach(row => {
-  initAvatar(row.querySelector('.avatar'), row.classList.contains('mychat'));
-});
-updateAvatars();
+// สร้างแชทเริ่มต้น
+addChat(true);  // แชทของเรา
+addChat(false); // แชทคู่สนทนา
 </script>
 
 </body>
