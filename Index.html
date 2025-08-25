@@ -6,16 +6,23 @@
 <title>Messenger Clone</title>
 <style>
 body {
-  background: black;
+  margin: 0;
   font-family: system-ui, "Segoe UI", sans-serif;
   padding: 20px;
   padding-bottom: 80px;
+
+  /* พื้นหลังแบบ iPadOS */
+  background: linear-gradient(135deg, #1c1c1e, #2c2c2e);
+  background-attachment: fixed;
+  color: white;
 }
+
 #chatContainer {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .bubble-row {
   display: flex;
   align-items: flex-end;
@@ -23,14 +30,17 @@ body {
   max-width: 90%;
   position: relative;
 }
+
 .mychat {
   align-self: flex-start;
   flex-direction: row;
 }
+
 .partner {
   align-self: flex-end;
   flex-direction: row-reverse;
 }
+
 .avatar {
   width: 32px;
   height: 32px;
@@ -47,21 +57,31 @@ body {
 .avatar input {
   display: none;
 }
+
+/* bubble โปร่งใสแบบ iPadOS */
 .bubble {
   border-radius: 18px;
   padding: 8px 12px;
   font-size: 15px;
   white-space: pre-wrap;
   word-break: break-word;
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
+
 .mychat .bubble {
-  background: #e5e5ea;
+  background: rgba(229, 229, 234, 0.55); 
   color: black;
 }
+
 .partner .bubble {
-  background: #0084ff;
+  background: rgba(0, 132, 255, 0.55); 
   color: white;
 }
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -75,7 +95,7 @@ body {
 }
 .time {
   font-weight: normal;
-  color: #555;
+  color: #ccc;
   margin-left: 8px;
   flex-shrink: 0;
 }
@@ -91,6 +111,7 @@ body {
 .partner .message {
   color: white;
 }
+
 #buttons {
   position: fixed;
   bottom: 10px;
@@ -100,17 +121,23 @@ body {
   justify-content: center;
   gap: 10px;
 }
+
+/* ปุ่ม glass style */
 #buttons button {
   padding: 8px 14px;
   font-size: 14px;
   border: none;
-  border-radius: 8px;
-  background: #4f8cff;
+  border-radius: 12px;
+  background: rgba(79, 140, 255, 0.6);
   color: white;
   cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 #buttons button:hover {
-  background: #3a6edc;
+  background: rgba(79, 140, 255, 0.8);
 }
 </style>
 </head>
@@ -214,7 +241,6 @@ function createChat(data=null, isMyChat=true, isFirst=false){
     name.addEventListener('input', saveChatData);
     time.addEventListener('input', saveChatData);
   }else if(isMyChat && !isFirst){
-    // เว้นระยะซ้ายเท่ากับ avatar
     bubble.style.marginLeft = '32px';
   }
 
