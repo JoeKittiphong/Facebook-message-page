@@ -10,9 +10,7 @@ body {
   font-family: system-ui, "Segoe UI", sans-serif;
   padding: 20px;
   padding-bottom: 80px;
-
-  /* พื้นหลังแบบ iPadOS */
-  background: black; 
+  background: black; /* พื้นหลังดำ */
   color: white;
 }
 
@@ -57,7 +55,7 @@ body {
   display: none;
 }
 
-/* bubble โปร่งใสแบบ iPadOS */
+/* bubble โปร่งใสแบบ glass */
 .bubble {
   border-radius: 18px;
   padding: 8px 12px;
@@ -68,7 +66,7 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
 }
 
 .mychat .bubble {
@@ -81,31 +79,38 @@ body {
   color: white;
 }
 
+/* header: ชื่อ + เวลา (รอง) */
 .header {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  font-weight: bold;
+  font-size: 13px;
+  font-weight: normal;
+  opacity: 0.75;
 }
-.name[contenteditable],
-.message[contenteditable],
-.time[contenteditable] {
-  outline: none;
+
+.name {
+  font-weight: normal;
 }
+
 .time {
   font-weight: normal;
-  color: #ccc;
+  font-size: 12px;
+  color: #aaa;
   margin-left: 8px;
   flex-shrink: 0;
 }
 .partner .time {
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.6);
 }
+
+/* ข้อความ: เน้นที่สุด */
 .message {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 500;
   margin-top: 2px;
   white-space: pre-wrap;
   word-break: break-word;
+  line-height: 1.4;
 }
 .partner .message {
   color: white;
@@ -121,7 +126,7 @@ body {
   gap: 10px;
 }
 
-/* ปุ่ม glass style */
+/* ปุ่ม glass */
 #buttons button {
   padding: 8px 14px;
   font-size: 14px;
@@ -133,7 +138,7 @@ body {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 #buttons button:hover {
   background: rgba(79, 140, 255, 0.8);
