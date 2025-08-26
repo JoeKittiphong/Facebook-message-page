@@ -9,9 +9,8 @@ body {
   background: black;
   font-family: system-ui, "Segoe UI", sans-serif;
   padding: 20px;
-  padding-bottom: 80px;
   margin: 0;
-  margin-top : 20%;
+  overflow-y: auto;
 }
 #chatContainer {
   display: flex;
@@ -254,25 +253,30 @@ function createChat(data=null, isMyChat=true, isFirst=false, index=0){
   return row;
 }
 
+function updateAvatars(){
+  const container = document.getElementById('chatContainer');
+  const rows = Array.from(container.querySelectorAll('.bubble-row'));
+  rows.forEach((r,i)=>{
+    r.style.marginTop = (i===0)?'20vh':'4px';
+  });
+}
+
+// ปรับ addChat ให้คงตำแหน่ง scroll ปัจจุบัน
 function addChat(isMyChat, data=null, isFirst=false){
   const container = document.getElementById('chatContainer');
+  const scrollPos = container.scrollTop; // เก็บตำแหน่ง scroll ปัจจุบัน
   const currentData = getChatData();
   const index = currentData.length;
   const row = createChat(data, isMyChat, isFirst, index);
   container.appendChild(row);
   updateAvatars();
   saveChatData();
-}
-
-function updateAvatars(){
-  const rows = Array.from(document.querySelectorAll('.bubble-row'));
-  rows.forEach((r,i)=>{ r.style.marginTop = (i===0)?'20vh':'0'; });
+  container.scrollTop = scrollPos; // กลับไปตำแหน่งเดิม
 }
 
 // ▶️ ฟังก์ชันรีแคป
 async function recapChats() {
-  saveChatData(); // ✅ บันทึกข้อมูลล่าสุดก่อนรีแคป
-
+  saveChatData();
   const container = document.getElementById('chatContainer');
   container.innerHTML = "";
   const savedData = getChatData();
