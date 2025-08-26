@@ -55,7 +55,6 @@ body {
   font-size: 15px;
   white-space: pre-wrap;
   word-break: break-word;
-
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -123,7 +122,7 @@ body {
   background: rgba(79, 140, 255, 0.8);
 }
 [contenteditable]:focus {
-  outline: none; /* ไม่ให้ขึ้นกรอบตอนพิมพ์ */
+  outline: none;
 }
 </style>
 </head>
@@ -187,7 +186,7 @@ function enableLongPressDelete(row, index) {
       if (confirm("คุณต้องการลบแชทนี้หรือไม่?")) {
         row.remove();
         let data = getChatData();
-        data.splice(index,1); // ลบออกจาก localStorage ด้วย
+        data.splice(index,1);
         saveChatData(data);
         updateAvatars();
       }
@@ -250,8 +249,6 @@ function createChat(data=null, isMyChat=true, isFirst=false, index=0){
   bubble.appendChild(message);
 
   row.appendChild(bubble);
-
-  // ✅ ผูกการลบพร้อม sync index
   enableLongPressDelete(row, index);
 
   return row;
@@ -274,8 +271,10 @@ function updateAvatars(){
 
 // ▶️ ฟังก์ชันรีแคป
 async function recapChats() {
+  saveChatData(); // ✅ บันทึกข้อมูลล่าสุดก่อนรีแคป
+
   const container = document.getElementById('chatContainer');
-  container.innerHTML = ""; // เคลียร์ก่อน
+  container.innerHTML = "";
   const savedData = getChatData();
   if (!savedData.length) return;
 
@@ -295,7 +294,7 @@ async function recapChats() {
     for (let j = 0; j < fullText.length; j++) {
       typed += fullText[j];
       msgEl.textContent = typed;
-      await new Promise(res => setTimeout(res, 40)); // 40ms/ตัว
+      await new Promise(res => setTimeout(res, 40));
     }
     await new Promise(res => setTimeout(res, 500));
   }
