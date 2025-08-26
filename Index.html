@@ -16,6 +16,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding-top: 20vh; /* แถวแรกห่างขอบบน 20% */
 }
 .bubble-row {
   display: flex;
@@ -257,24 +258,22 @@ function updateAvatars(){
   const container = document.getElementById('chatContainer');
   const rows = Array.from(container.querySelectorAll('.bubble-row'));
   rows.forEach((r,i)=>{
-    r.style.marginTop = (i===0)?'20vh':'4px';
+    r.style.marginTop = '0'; // gap จัดใน CSS แล้ว
   });
 }
 
-// ปรับ addChat ให้คงตำแหน่ง scroll ปัจจุบัน
 function addChat(isMyChat, data=null, isFirst=false){
   const container = document.getElementById('chatContainer');
-  const scrollPos = container.scrollTop; // เก็บตำแหน่ง scroll ปัจจุบัน
+  const scrollPos = container.scrollTop;
   const currentData = getChatData();
   const index = currentData.length;
   const row = createChat(data, isMyChat, isFirst, index);
   container.appendChild(row);
   updateAvatars();
   saveChatData();
-  container.scrollTop = scrollPos; // กลับไปตำแหน่งเดิม
+  container.scrollTop = scrollPos;
 }
 
-// ▶️ ฟังก์ชันรีแคป
 async function recapChats() {
   saveChatData();
   const container = document.getElementById('chatContainer');
@@ -304,7 +303,6 @@ async function recapChats() {
   }
 }
 
-// โหลดแชท
 const savedData = getChatData();
 if(savedData.length){
   savedData.forEach((d,i)=> {
@@ -316,7 +314,6 @@ if(savedData.length){
   addChat(false);
 }
 
-// ปุ่ม
 document.getElementById('addMyChat').addEventListener('click',()=>addChat(true));
 document.getElementById('addPartnerChat').addEventListener('click',()=>addChat(false));
 document.getElementById('recapChat').addEventListener('click',recapChats);
