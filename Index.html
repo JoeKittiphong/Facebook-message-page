@@ -16,7 +16,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding-top: 15vh; /* แถวแรกห่างขอบบน 15% */
+  padding-top: 15vh;
 }
 .bubble-row {
   display: flex;
@@ -104,6 +104,7 @@ body {
   display: flex;
   justify-content: center;
   gap: 10px;
+  flex-wrap: wrap;
 }
 #buttons button {
   padding: 8px 14px;
@@ -121,6 +122,10 @@ body {
 #buttons button:hover {
   background: rgba(79, 140, 255, 0.8);
 }
+#speedLabel {
+  color: white;
+  font-size: 14px;
+}
 [contenteditable]:focus {
   outline: none;
 }
@@ -134,11 +139,20 @@ body {
   <button id="addMyChat">+ เพิ่มแชทของเรา</button>
   <button id="addPartnerChat">+ เพิ่มแชทคู่สนทนา</button>
   <button id="recapChat">▶️ รีแคป</button>
+  <label id="speedLabel">
+    ความเร็ว: <span id="speedValue">x1.0</span>
+    <input type="range" id="speedControl" min="0.2" max="3" step="0.1">
+  </label>
 </div>
 
 <script>
 let myAvatarSrc = localStorage.getItem('myAvatar') || 
   "https://upload.wikimedia.org/wikipedia/commons/8/83/Facebook_Messenger_4_Logo.svg";
+
+// โหลดค่า speed จาก localStorage ถ้าไม่มีใช้ค่า default = 1
+let savedSpeed = parseFloat(localStorage.getItem('recapSpeed')) || 1;
+document.getElementById('speedControl').value = savedSpeed;
+document.getElementById('speedValue').textContent = "x" + savedSpeed.toFixed(1);
 
 function getChatData() {
   return JSON.parse(localStorage.getItem('chatData') || '[]');
@@ -258,7 +272,7 @@ function updateAvatars(){
   const container = document.getElementById('chatContainer');
   const rows = Array.from(container.querySelectorAll('.bubble-row'));
   rows.forEach((r,i)=>{
-    r.style.marginTop = '0'; // gap จัดใน CSS แล้ว
+    r.style.marginTop = '0';
   });
 }
 
@@ -274,12 +288,20 @@ function addChat(isMyChat, data=null, isFirst=false){
   container.scrollTop = scrollPos;
 }
 
+function getRecapSpeed() {
+  return parseFloat(document.getElementById('speedControl').value);
+}
+
 async function recapChats() {
   saveChatData();
   const container = document.getElementById('chatContainer');
   container.innerHTML = "";
   const savedData = getChatData();
   if (!savedData.length) return;
+
+  const speed = getRecapSpeed(); 
+  const charDelay = 40 / speed;  
+  const msgDelay  = 500 / speed; 
 
   for (let i = 0; i < savedData.length; i++) {
     const d = savedData[i];
@@ -297,12 +319,13 @@ async function recapChats() {
     for (let j = 0; j < fullText.length; j++) {
       typed += fullText[j];
       msgEl.textContent = typed;
-      await new Promise(res => setTimeout(res, 40));
+      await new Promise(res => setTimeout(res, charDelay));
     }
-    await new Promise(res => setTimeout(res, 500));
+    await new Promise(res => setTimeout(res, msgDelay));
   }
 }
 
+// initial load
 const savedData = getChatData();
 if(savedData.length){
   savedData.forEach((d,i)=> {
@@ -317,6 +340,12 @@ if(savedData.length){
 document.getElementById('addMyChat').addEventListener('click',()=>addChat(true));
 document.getElementById('addPartnerChat').addEventListener('click',()=>addChat(false));
 document.getElementById('recapChat').addEventListener('click',recapChats);
+
+document.getElementById('speedControl').addEventListener('input', e=>{
+  const val = parseFloat(e.target.value);
+  document.getElementById('speedValue').textContent = "x" + val.toFixed(1);
+  localStorage.setItem('recapSpeed', val); // บันทึกค่าไว้
+});
 </script>
 
 </body>
