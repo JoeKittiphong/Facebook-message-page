@@ -16,7 +16,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10vh 16px 16px 16px; /* padding บน ขวา ล่าง ซ้าย */
+  padding: 20px 16px 20px 0px; /* padding บน ขวา ล่าง ซ้าย */
 }
 .bubble-row {
   display: flex;
@@ -393,7 +393,7 @@ async function waitImagesLoad(container) {
   await Promise.all(promises);
 }
 
-// เซฟภาพ
+// เซฟภาพความกว้าง 1080px
 document.getElementById('saveImage').addEventListener('click', async ()=>{
   const container = document.getElementById('chatContainer');
   await waitImagesLoad(container);
@@ -420,10 +420,16 @@ document.getElementById('saveImage').addEventListener('click', async ()=>{
 
   document.getElementById('buttons').classList.add("hidden");
   const bgColor = getComputedStyle(document.body).backgroundColor;
+
+  // คำนวณ scale เพื่อให้ความกว้าง = 1080px
+  const desiredWidth = 1080;
+  const containerWidth = container.scrollWidth;
+  const scale = desiredWidth / containerWidth;
+
   const canvas = await html2canvas(container, {
     backgroundColor: bgColor,
     useCORS: true,
-    scale: 2,
+    scale: scale,
     windowWidth: container.scrollWidth,
     windowHeight: container.scrollHeight,
     scrollY: -window.scrollY
