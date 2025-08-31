@@ -13,11 +13,11 @@ body {
   overflow-y: auto;
 }
 #chatContainer {
-  width : 400px;
+  width : 320px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 100px 5px 100px 5px; /* padding บน ขวา ล่าง ซ้าย */
+  padding: 100px 5px 100px 5px;
 }
 .bubble-row {
   display: flex;
@@ -147,10 +147,10 @@ body {
 <div id="buttons">
   <button id="addMyChat">+ เพิ่มแชทของเรา</button>
   <button id="addPartnerChat">+ เพิ่มแชทคู่สนทนา</button>
-  <button id="addImageChat">+ เพิ่มแชทรูปภาพ</button>
-  <button id="recapChat">▶️ รีแคป</button>
-  <button id="saveImage">💾 เซฟภาพ</button>
-  <button id="toggleButtons">👁️ ซ่อน/แสดงปุ่ม</button>
+  <button id="addImageChat">+🌅</button>
+  <button id="recapChat">▶️</button>
+  <button id="saveImage">💾</button>
+  <button id="toggleButtons">👁️</button>
   <label id="speedLabel">
     ความเร็ว: <span id="speedValue">x1.0</span>
     <input type="range" id="speedControl" min="0.2" max="3" step="0.1">
@@ -378,9 +378,9 @@ document.getElementById('speedControl').addEventListener('input', e=>{
   localStorage.setItem('recapSpeed', val);
 });
 
-// ซ่อน/แสดงปุ่ม
+// ✅ ซ่อน/แสดงปุ่ม (ยกเว้นปุ่มรีแคปและปุ่ม toggle)
 document.getElementById('toggleButtons').addEventListener('click', ()=>{
-  const btns = document.querySelectorAll("#buttons button:not(#toggleButtons), #speedLabel");
+  const btns = document.querySelectorAll("#buttons button:not(#toggleButtons):not(#recapChat), #speedLabel");
   btns.forEach(b=>b.classList.toggle("hidden"));
 });
 
@@ -422,7 +422,6 @@ document.getElementById('saveImage').addEventListener('click', async ()=>{
   document.getElementById('buttons').classList.add("hidden");
   const bgColor = getComputedStyle(document.body).backgroundColor;
 
-  // คำนวณ scale เพื่อให้ความกว้าง = 1080px
   const desiredWidth = 1080;
   const containerWidth = container.scrollWidth;
   const scale = desiredWidth / containerWidth;
